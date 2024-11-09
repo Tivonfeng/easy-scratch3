@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import bindAll from 'lodash.bindall';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -25,36 +26,37 @@ class BackdropLibrary extends React.Component {
         ]);
         this.state = {
             data: [],
-            haveData:false
+            haveData: false
         };
     }
-    componentWillMount (){
-        let that = this
-        document.addEventListener("pushBackdropsLibrary",function(e){
-            console.log("pushBackdropsLibrary");
-            let data = e.detail.data.concat(that.state.data)
+    async componentWillMount (){
+        const that = this;
+        document.addEventListener('pushBackdropsLibrary', e => {
+            // eslint-disable-next-line no-console
+            console.log('pushBackdropsLibrary');
+            const data = e.detail.data.concat(that.state.data);
             that.setState({
-                data:data,
-                haveData:true
-            })
-        })
-        window.scratch.pushBackdropsLibrary = (data)=>{
-            var event = new CustomEvent('pushBackdropsLibrary', {"detail": {data: data}});
+                data: data,
+                haveData: true
+            });
+        });
+        window.scratch.pushBackdropsLibrary = data => {
+            const event = new CustomEvent('pushBackdropsLibrary', {detail: {data: data}});
             document.dispatchEvent(event);
         };
 
-        if(window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.handleBeforeBackdropsLibraryOpen){
-           if(!window.scratchConfig.assets.handleBeforeBackdropsLibraryOpen()){
+        if (window.scratchConfig && window.scratchConfig.assets && window.scratchConfig.assets.handleBeforeBackdropsLibraryOpen) {
+            if (!window.scratchConfig.assets.handleBeforeBackdropsLibraryOpen()) {
                 return;
-           }
+            }
         }
-        getBackdropLibrary().then(data=>{
-            data = data.concat(this.state.data)
+        await getBackdropLibrary().then(data => {
+            data = data.concat(this.state.data);
             this.setState({
-                data:data,
-                haveData:true
-            })
-        })
+                data: data,
+                haveData: true
+            });
+        });
     }
     handleItemSelect (item) {
         const vmBackdrop = {
@@ -68,7 +70,7 @@ class BackdropLibrary extends React.Component {
         this.props.vm.addBackdrop(item.md5ext, vmBackdrop);
     }
     render () {
-        return !this.state.haveData?"": (
+        return this.state.haveData ? (
             <LibraryComponent
                 data={this.state.data}
                 id="backdropLibrary"
@@ -77,7 +79,7 @@ class BackdropLibrary extends React.Component {
                 onItemSelected={this.handleItemSelect}
                 onRequestClose={this.props.onRequestClose}
             />
-        );
+        ) : '';
     }
 }
 
